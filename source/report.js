@@ -1715,7 +1715,7 @@ function loadReport(params) {
     var elems = {
         stackBy: "", checkNoColorsChart: "false", checkBGColorChart: "false", colorChartBackground: "#FFFFFF", chartView: g_chartViews.cardcount, keyword: "showhide", groupBy: "", pivotBy: "", orderBy: "date", showZeroR: "", sinceSimple: sinceSimple, weekStart: "", weekEnd: "",
         monthStart: "", monthEnd: "", user: "", team: "", board: "", list: "", card: "", label: "", comment: "", eType: "all", archived: "0", deleted: "0",
-        idBoard: "showhide", idCard: "showhide", checkNoCrop: "false", afterRow: "showhide", checkNoCharts: "false",
+        idBoard: "showhide", idCard: "showhide", checkNoZeroR: "false", checkNoCrop: "false", afterRow: "showhide", checkNoCharts: "false",
         checkAddCustomFields: "false", checkAddMembers: "false", checkNoLabelColors: "false", checkNoBracketNotes: false, checkOutputCardShortLink: "false", checkOutputBoardShortLink: "false", checkOutputReport: "false", outputFormat: "csv", checkOutputCardIdShort: "false",
         checkHideAnnotationTexts: "false", checkHideZoomArea: false, checkSyncBeforeQuery: "false", checkNoPartialE: "false", checkNoSystemNumberFormat: "false"
     };
@@ -2338,7 +2338,7 @@ function configReport(elemsParam, bRefreshPage, bOnlyUrl, callbackParam) {
         elems["archived"] = "0"; //default to "Not archived"
 
     
-    var rgelemsFalse = ["checkAddCustomFields", "checkAddMembers", "checkNoCrop", "checkBGColorChart", "checkNoCharts", "checkNoColorsChart", "checkNoLabelColors", "checkNoPartialE",
+    var rgelemsFalse = ["checkAddCustomFields", "checkAddMembers", "checkNoZeroR", "checkNoCrop", "checkBGColorChart", "checkNoCharts", "checkNoColorsChart", "checkNoLabelColors", "checkNoPartialE",
     "checkSyncBeforeQuery", "checkOutputCardShortLink", "checkOutputBoardShortLink", "checkOutputCSV", 
     "checkOutputCardIdShort", "checkNoSystemNumberFormat", "checkHideAnnotationTexts", "checkHideZoomArea", "checkNoBracketNotes"];
 
@@ -2434,6 +2434,7 @@ function configReport(elemsParam, bRefreshPage, bOnlyUrl, callbackParam) {
                             var rows = response.rows;
                             try {
                                 var options = {
+                                    bNoZeroR: elems["checkNoZeroR"] == "true",
                                     bNoTruncate: elems["checkNoCrop"] == "true",
                                     bNoLabelColors: g_bProVersion && elems["checkNoLabelColors"] == "true",
                                     bAddCustomFields: bIncludeCustomFields,
@@ -3047,6 +3048,9 @@ function setReportData(rowsOrig, options, urlParams, sqlQuery, callbackOK) {
             if (!bNoCharts)
                 strAlert += "\n• Check 'No charts' in Options.";
             sendDesktopNotification(strAlert, 6000);
+        }
+        if (options.bNoZeroR && 0 < rowsGrouped.length) {
+            rowsGrouped = rowsGrouped.filter(r => (r.est - r.spent) > 0);
         }
         fillDOM(mapCardsToLabels, extraFieldsData, options.customColumns, callbackOK);
     }
