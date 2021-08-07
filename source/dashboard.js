@@ -433,7 +433,14 @@ function resetTDOutput(output) {
 }
 
 function loadTimeline(series, params) {
-    var xScale = new Plottable.Scales.Time();
+    const split = (str) => str?.split('-').map(s => s * 1);
+    const toDate = (arr) => (!!arr && arr.length === 2) ? new Date(arr[0], arr[1] - 1) : undefined;
+    const toEndDate = (arr) => (!!arr && arr.length === 2) ? new Date(arr[0], arr[1], 0) : undefined;
+    const monthStart = toDate(split(params['monthStart']))
+    const monthEnd =  toEndDate(split(params['monthEnd']))
+    var xScale =  monthStart || monthEnd
+        ? new Plottable.Scales.Time().domain([monthStart, monthEnd])
+        : new Plottable.Scales.Time() ;
     var xAxis = new Plottable.Axes.Numeric(xScale, "bottom");
     var xFormatter = Plottable.Formatters.multiTime();
     xAxis.formatter(xFormatter);
